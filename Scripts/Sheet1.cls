@@ -1,0 +1,22 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "Лист1"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Option Explicit
+
+Private Sub AcademicStaff_Change()
+    ModuleControls.CheckFields Me
+End Sub
+
+Private Sub UserDate_Change()
+    ModuleControls.CheckFields Me
+End Sub
+
+Private Sub SubmitBtn_Click()
+    ModuleCreateReport.CreateReport Me
+End Sub
