@@ -66,12 +66,15 @@ Public Sub WriteRows(wsTarget As Worksheet, cbDates As Object)
                 With wsTarget.Cells(insertRow + 1, col).Validation
                     .Delete
                     .Add Type:=xlValidateList, _
-                         AlertStyle:=xlValidAlertStop, _
+                         AlertStyle:=xlValidAlertInformation, _
                          Operator:=xlBetween, _
                          Formula1:="=Params!$A$2:$A$58"
                     .IgnoreBlank = True
                     .InCellDropdown = True
                     .ShowInput = True
+                    .ShowError = True
+                    .ErrorTitle = "Увага"
+                    .ErrorMessage = "Значення відсутне"
                 End With
                 
                 wsTarget.Cells(insertRow + 1, col).NumberFormat = "hh:mm"
