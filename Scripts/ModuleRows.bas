@@ -41,15 +41,25 @@ Public Sub WriteRows(wsTarget As Worksheet, cbDates As Object)
         
         If Weekday(currentDate, vbMonday) <> 7 Then
             With wsTarget.Cells(insertRow + 1, 5)
-                .Formula = "=IF(OR(C" & insertRow + 1 & "="""",D" & insertRow + 1 & "=""""),"""",D" & insertRow + 1 & "-C" & insertRow + 1 & ")"
+                .Formula = "=IF(OR(C" & insertRow + 1 & "="""",D" & insertRow + 1 & "=""""),"""",IF(D" & insertRow + 1 & "-C" & insertRow + 1 & "<0,""Ошибка"",D" & insertRow + 1 & "-C" & insertRow + 1 & "))"
                 .NumberFormat = "hh:mm"
                 .Locked = True
+                
+                .FormatConditions.Delete
+                .FormatConditions.Add Type:=xlExpression, Formula1:="=E" & insertRow + 1 & "=""Ошибка"""
+                .FormatConditions(1).Interior.Color = RGB(255, 0, 0)  ' Красный фон
+                .FormatConditions(1).Font.Color = RGB(255, 255, 255)   ' Белый текст для контраста
             End With
             
             With wsTarget.Cells(insertRow + 1, 9)
-                .Formula = "=IF(OR(G" & insertRow + 1 & "="""",H" & insertRow + 1 & "=""""),"""",H" & insertRow + 1 & "-G" & insertRow + 1 & ")"
+                .Formula = "=IF(OR(G" & insertRow + 1 & "="""",H" & insertRow + 1 & "=""""),"""",IF(H" & insertRow + 1 & "-G" & insertRow + 1 & "<0,""Ошибка"",H" & insertRow + 1 & "-G" & insertRow + 1 & "))"
                 .NumberFormat = "hh:mm"
                 .Locked = True
+                
+                .FormatConditions.Delete
+                .FormatConditions.Add Type:=xlExpression, Formula1:="=I" & insertRow + 1 & "=""Ошибка"""
+                .FormatConditions(1).Interior.Color = RGB(255, 0, 0)
+                .FormatConditions(1).Font.Color = RGB(255, 255, 255)
             End With
             
             For Each col In cols
