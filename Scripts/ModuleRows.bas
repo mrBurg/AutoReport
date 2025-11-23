@@ -8,10 +8,10 @@ Public Sub WriteRows(wsTarget As Worksheet, cbDates As Object)
     Dim M As Long, Y As Long
     Dim parts() As String
     Dim daysInMonth As Long
-    Dim weekdaysUkr() As Variant
+    Dim weekDaysUkr() As Variant
     Dim currentDate As Date
     Dim cols() As Variant
-    Dim col As Variant
+    Dim Col As Variant
     Dim lastRow As Long
     Dim lastCol As Long
     
@@ -19,7 +19,7 @@ Public Sub WriteRows(wsTarget As Worksheet, cbDates As Object)
     Application.EnableEvents = False
     Application.Calculation = xlCalculationManual
     
-    weekdaysUkr = Sheets("Params").Range("B2:B8").Value
+    weekDaysUkr = Sheets("Params").Range("B2:B8").Value
     
     parts = Split(cbDates.Value, ".")
     M = CLng(parts(0))
@@ -28,6 +28,7 @@ Public Sub WriteRows(wsTarget As Worksheet, cbDates As Object)
     
     insertRow = 15
     
+    lastCol = 9
     cols = Array(3, 4, 7, 8)
     
     For i = daysInMonth To 1 Step -1
@@ -36,39 +37,45 @@ Public Sub WriteRows(wsTarget As Worksheet, cbDates As Object)
         currentDate = DateSerial(Y, M, i)
         
         wsTarget.Cells(insertRow + 1, 1).Value = i
-        wsTarget.Cells(insertRow + 1, 2).Value = weekdaysUkr(Weekday(currentDate, vbMonday), 1)
+        wsTarget.Cells(insertRow + 1, 2).Value = weekDaysUkr(Weekday(currentDate, vbMonday), 1)
         wsTarget.Rows(insertRow + 1).Font.Size = 12
         
         If Weekday(currentDate, vbMonday) <> 7 Then
             With wsTarget.Cells(insertRow + 1, 5)
-                .Formula = "=IF(OR(C" & insertRow + 1 & "="""",D" & insertRow + 1 & "=""""),"""",IF(D" & insertRow + 1 & "-C" & insertRow + 1 & "<0,""Ошибка"",D" & insertRow + 1 & "-C" & insertRow + 1 & "))"
+                .Formula = "=IF(" & _
+                    "OR(C" & insertRow + 1 & "="""", D" & insertRow + 1 & "=""""), """"," & _
+                        "IF(D" & insertRow + 1 & "-C" & insertRow + 1 & "<0,""Ошибка"",D" & insertRow + 1 & "-C" & insertRow + 1 & ")" & _
+                    ")"
                 .NumberFormat = "hh:mm"
-                .Locked = True
+                ' .Locked = True
                 
                 .FormatConditions.Delete
-                .FormatConditions.Add Type:=xlExpression, Formula1:="=E" & insertRow + 1 & "=""Ошибка"""
+                .FormatConditions.Add Type:=xlExpression, Formula1:="=E" & insertRow + 1 & "=""Помилка"""
                 .FormatConditions(1).Interior.Color = RGB(255, 0, 0)  ' Красный фон
                 .FormatConditions(1).Font.Color = RGB(255, 255, 255)   ' Белый текст для контраста
             End With
             
-            With wsTarget.Cells(insertRow + 1, 9)
-                .Formula = "=IF(OR(G" & insertRow + 1 & "="""",H" & insertRow + 1 & "=""""),"""",IF(H" & insertRow + 1 & "-G" & insertRow + 1 & "<0,""Ошибка"",H" & insertRow + 1 & "-G" & insertRow + 1 & "))"
+            With wsTarget.Cells(insertRow + 1, lastCol)
+                .Formula = "=IF(" & _
+                    "OR(G" & insertRow + 1 & "="""", H" & insertRow + 1 & "=""""), """"," & _
+                        "IF(H" & insertRow + 1 & "-G" & insertRow + 1 & "<0,""Ошибка"",H" & insertRow + 1 & "-G" & insertRow + 1 & ")" & _
+                    ")"
                 .NumberFormat = "hh:mm"
-                .Locked = True
+                ' .Locked = True
                 
                 .FormatConditions.Delete
-                .FormatConditions.Add Type:=xlExpression, Formula1:="=I" & insertRow + 1 & "=""Ошибка"""
+                .FormatConditions.Add Type:=xlExpression, Formula1:="=I" & insertRow + 1 & "=""Помилка"""
                 .FormatConditions(1).Interior.Color = RGB(255, 0, 0)
                 .FormatConditions(1).Font.Color = RGB(255, 255, 255)
             End With
             
-            For Each col In cols
-                With wsTarget.Cells(insertRow + 1, col).Validation
+            For Each Col In cols
+                With wsTarget.Cells(insertRow + 1, Col).Validation
                     .Delete
                     .Add Type:=xlValidateList, _
                          AlertStyle:=xlValidAlertInformation, _
                          Operator:=xlBetween, _
-                         Formula1:="=Params!$A$2:$A$58"
+                         Formula1:="=Params!A2:A58"
                     .IgnoreBlank = True
                     .InCellDropdown = True
                     .ShowInput = True
@@ -77,12 +84,12 @@ Public Sub WriteRows(wsTarget As Worksheet, cbDates As Object)
                     .ErrorMessage = "Значення відсутне"
                 End With
                 
-                wsTarget.Cells(insertRow + 1, col).NumberFormat = "hh:mm"
-            Next col
+                wsTarget.Cells(insertRow + 1, Col).NumberFormat = "hh:mm"
+            Next Col
             'wsTarget.Cells(insertRow + 1, 8).Validation.InputTitle = ""
             'wsTarget.Cells(insertRow + 1, 8).Validation.InputMessage = ""
         Else
-            With wsTarget.Range(wsTarget.Cells(insertRow + 1, 3), wsTarget.Cells(insertRow + 1, 9))
+            With wsTarget.Range(wsTarget.Cells(insertRow + 1, 3), wsTarget.Cells(insertRow + 1, lastCol))
                 .Merge
                 .Value = "Вихідний"
                 .HorizontalAlignment = xlCenter
@@ -91,7 +98,7 @@ Public Sub WriteRows(wsTarget As Worksheet, cbDates As Object)
             End With
         End If
         
-        Set rng = wsTarget.Range(wsTarget.Cells(insertRow + 1, 1), wsTarget.Cells(insertRow + 1, 9))
+        Set rng = wsTarget.Range(wsTarget.Cells(insertRow + 1, 1), wsTarget.Cells(insertRow + 1, lastCol))
         With rng.Borders
             .LineStyle = xlContinuous
             .Weight = xlThin
@@ -99,8 +106,17 @@ Public Sub WriteRows(wsTarget As Worksheet, cbDates As Object)
         End With
     Next i
     
+    wsTarget.Cells(insertRow + daysInMonth + 1, lastCol).Formula = "=IF(" & _
+        "SUM(I" & insertRow + 1 & ":I" & insertRow + daysInMonth & ") + " & _
+        "SUM(E" & insertRow + 1 & ":E" & insertRow + daysInMonth & ") = 0, """", " & _
+        "SUM(I" & insertRow + 1 & ":I" & insertRow + daysInMonth & ") + " & _
+        "SUM(E" & insertRow + 1 & ":E" & insertRow + daysInMonth & ")" & _
+    ")"
+    
+    wsTarget.Range("C" & (insertRow + 1) & ":I" & (insertRow + daysInMonth)).Locked = False
+    
+    
     lastRow = wsTarget.Cells(wsTarget.Rows.Count, 1).End(xlUp).Row
-    lastCol = 9
     
     wsTarget.PageSetup.PrintArea = wsTarget.Range(wsTarget.Cells(1, 1), wsTarget.Cells(lastRow, lastCol)).Address
     
@@ -120,6 +136,7 @@ Public Sub WriteRows(wsTarget As Worksheet, cbDates As Object)
     Application.ScreenUpdating = True
     Application.EnableEvents = True
     Application.Calculation = xlCalculationAutomatic
+    wsTarget.Protect
         
     'Debug.Print daysInMonth
 End Sub

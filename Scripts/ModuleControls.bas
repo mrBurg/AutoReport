@@ -1,20 +1,21 @@
 Attribute VB_Name = "ModuleControls"
 Option Explicit
 
-Public Sub FillAcademicStaff(ws As Worksheet, cbNames As Object)
+Public Sub FillAcademicStaff(cbNames As Object)
     Dim wsData As Worksheet
     Dim rng As Range
-    Dim cell As Range
+    Dim Cell As Range
     
-    Set wsData = ThisWorkbook.Sheets("моо")
+    Set wsData = ThisWorkbook.Sheets("SPW")
     Set rng = wsData.Range("B2:B47")
     
     cbNames.AddItem
-    For Each cell In rng
-        If Not IsEmpty(cell.Value) Then
-            cbNames.AddItem ShortName(cell.Value)
+    
+    For Each Cell In rng
+        If Not IsEmpty(Cell.Value) Then
+            cbNames.AddItem ShortName(Cell.Value)
         End If
-    Next cell
+    Next Cell
 End Sub
 
 Public Sub FillDates(cbDates As Object)
@@ -22,11 +23,13 @@ Public Sub FillDates(cbDates As Object)
     Dim endDate As Date
     Dim currentDate As Date
     
-    startDate = DateSerial(2024, 9, 1)
-    endDate = DateSerial(2027, 8, 1)
+    ' startDate = DateSerial(2024, 9, 1)
+    startDate = DateAdd("m", -6, Date)
+    endDate = DateAdd("m", 6, Date)
     currentDate = startDate
     
     cbDates.AddItem
+    
     Do While currentDate <= endDate
         cbDates.AddItem Format(currentDate, "mm.yyyy")
         currentDate = DateAdd("m", 1, currentDate)
@@ -43,7 +46,7 @@ Public Sub FillAll(ws As Worksheet)
     cbNames.Clear
     cbDates.Clear
     
-    FillAcademicStaff ws, cbNames
+    FillAcademicStaff cbNames
     FillDates cbDates
     CheckFields ws
 End Sub

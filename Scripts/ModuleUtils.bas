@@ -1,6 +1,15 @@
 Attribute VB_Name = "ModuleUtils"
 Option Explicit
 
+Public Function Col(ByVal colLetter As String) As Long
+    Col = Range(colLetter & "1").Column
+End Function
+
+Public Function Cell(ByVal rowNum As Long, ByVal colLetter As String, Optional ws As Worksheet) As Range
+    If ws Is Nothing Then Set ws = ActiveSheet
+    Set Cell = ws.Cells(rowNum, Col(colLetter))
+End Function
+
 Public Function ShortName(fullName As String) As String
     Dim parts() As String
     Dim result As String
@@ -57,13 +66,15 @@ Public Sub FillTemplate(ws As Worksheet, fullName As String, currentDate As Stri
         ws.Range("F11").Value = "пЁЙ"
     End If
     
-    Set wsData = ThisWorkbook.Sheets("моо")
+    Set wsData = ThisWorkbook.Sheets("SPW")
     Set searchRange = wsData.Range("B2:B47")
     
     foundRate = False
+    
     For i = 1 To searchRange.Rows.Count
         If Trim(ShortName(searchRange.Cells(i, 1).Value)) = fullName Then
             percentRate = wsData.Cells(searchRange.Cells(i, 1).Row, "D").Value
+            
             foundRate = True
             
             Exit For
@@ -90,8 +101,9 @@ Private Function SheetNameToDate(s As String) As Date
     Dim p1 As String, p2 As String
     Dim Y As Long, M As Long
     
-    If s = "AutoReport" Or s = "моо" Or s = "Params" Then
+    If s = "AutoReport" Or s = "SPW" Or s = "Params" Or s = "Schedule" Then
         SheetNameToDate = DateSerial(1900, 1, 1)
+        
         Exit Function
     End If
         
@@ -116,12 +128,13 @@ Public Sub SortSheetsByDate()
 
     For i = 1 To ThisWorkbook.Sheets.Count - 1
         s1 = ThisWorkbook.Sheets(i).Name
-        If s1 = "AutoReport" Or s1 = "моо" Or s1 = "Params" Then GoTo ContinueI
+        
+        If s1 = "AutoReport" Or s1 = "SPW" Or s1 = "Params" Or s1 = "Schedule" Then GoTo ContinueI
 
         For j = i + 1 To ThisWorkbook.Sheets.Count
 
             s2 = ThisWorkbook.Sheets(j).Name
-            If s2 = "AutoReport" Or s2 = "моо" Or s2 = "Params" Then GoTo ContinueJ
+            If s2 = "AutoReport" Or s2 = "SPW" Or s2 = "Params" Or s2 = "Schedule" Then GoTo ContinueJ
 
             d1 = SheetNameToDate(s1)
             d2 = SheetNameToDate(s2)
