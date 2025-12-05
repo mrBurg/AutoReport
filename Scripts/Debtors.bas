@@ -115,7 +115,7 @@ Sub MoveRowsWithNotAllTrue()
             End With
             
             With wsDest
-                .Cells(destRow, getCol("A")).Formula = "=ROW() - ROW(A" & startRow & ") + 1"
+                .Cells(destRow, getCol("A")).formula = "=ROW() - ROW(A" & startRow & ") + 1"
                 .Cells(destRow, getCol("A")).Borders.LineStyle = xlContinuous
             End With
             
