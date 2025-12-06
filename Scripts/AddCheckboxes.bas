@@ -4,7 +4,6 @@ Option Explicit
 Sub AddCheckCheckboxes()
     Dim r As Range
     Dim cb As CheckBox
-    Dim txt As String
     Dim cbName As String
     Dim ws As Worksheet
     Dim colWidth As Long

@@ -10,6 +10,7 @@ Sub MoveRowsWithNotAllTrue()
     Dim j As Long
     Dim c As Long
     Dim r As Long
+    Dim k As Range
     Dim allTrue As Boolean
     Dim sheetName As String
     Dim destName As String
@@ -18,13 +19,17 @@ Sub MoveRowsWithNotAllTrue()
     Dim legendStart As Long
     Dim headerRange As Range
     Dim allCells As Range
+    Dim rowRange As Range
+    Dim rowDestRange As Range
     Dim cb As CheckBox
     Dim cbName As String
     Dim colLetter As String
+    Dim nf() As Variant
 
     Application.CutCopyMode = False
     Application.ReferenceStyle = xlA1
     Application.ScreenUpdating = False
+    Application.Calculation = xlCalculationManual
     
     sheetName = ActiveSheet.name
     
@@ -49,9 +54,12 @@ Sub MoveRowsWithNotAllTrue()
     
     wsDest.Cells.Clear
     
-    Set headerRange = wsSrc.Range("A1:P3")
+    Set headerRange = wsSrc.Range(getCell(1, "A").Address & _
+        ":" & _
+        getCell(3, "P").Address)
     
     headerRange.Copy
+    
     wsDest.Range("A1").PasteSpecial xlPasteAll
         
     For c = 1 To headerRange.Columns.Count
@@ -84,7 +92,7 @@ Sub MoveRowsWithNotAllTrue()
             GoTo SkipRow
         End If
         
-        For j = 4 To lastCol
+        For j = startRow To lastCol
             colLetter = getColLetter(j)
             cbName = "CB_" & colLetter & i
             
@@ -107,33 +115,42 @@ Sub MoveRowsWithNotAllTrue()
             End If
         Next j
         
+        Set rowRange = wsSrc.Rows(i).Range("A1").Resize(1, lastCol + 1)
+        Set rowDestRange = wsDest.Rows(destRow).Range("A1")
+        
         If Not allTrue Then
-            With wsSrc.Rows(i).Range("A1").Resize(1, lastCol + 1)
-                wsDest.Rows(destRow).Range("A1").Resize(1, lastCol + 1).Value = .Value
+            With rowRange
+                rowDestRange.Resize(1, lastCol + 1).Value = .Value
                 .Copy
-                wsDest.Rows(destRow).Range("A1").PasteSpecial xlPasteFormats
+                rowDestRange.PasteSpecial xlPasteFormats
             End With
             
-            With wsDest
-                .Cells(destRow, getCol("A")).formula = "=ROW() - ROW(A" & startRow & ") + 1"
-                .Cells(destRow, getCol("A")).Borders.LineStyle = xlContinuous
+            With wsDest.Cells(destRow, getCol("A"))
+                .formula = "=ROW() - ROW(A" & startRow & ") + 1"
+                .Borders.LineStyle = xlContinuous
             End With
             
             destRow = destRow + 1
         End If
     
-    Set allCells = wsDest.Range("D4:O" & lastRow)
+    ReDim nf(1 To wsDest.usedRange.Rows.Count, 1 To wsDest.usedRange.Columns.Count)
+    For Each k In wsDest.usedRange
+        nf(k.Row, k.Column) = k.NumberFormat
+    Next k
     
-    allCells.FormatConditions.Delete
-    allCells.FormatConditions.Add _
-        Type:=xlExpression, _
-        Formula1:="=LEN(Trim(" & allCells.Cells(1, 1).Address(False, False) & ")) > 0"
-    allCells.FormatConditions(1).Interior.Color = RGB(128, 128, 128)
+    wsDest.Cells.FormatConditions.Delete
+    wsSrc.usedRange.Copy
+    wsDest.usedRange.PasteSpecial Paste:=xlPasteFormats
+    
+    For Each k In wsDest.usedRange
+        k.NumberFormat = nf(k.Row, k.Column)
+    Next k
+    
 SkipRow:
     Next i
     
     legendStart = destRow + 1
-    
+        
     With wsDest
         .Cells(legendStart, "C").Value = "Здано"
         .Cells(legendStart, "B").Interior.Color = RGB(128, 128, 128)
@@ -148,10 +165,31 @@ SkipRow:
         .Columns("B:C").AutoFit
     End With
     
-    wsDest.Activate
+    With wsDest.PageSetup
+        .LeftMargin = Application.InchesToPoints(0.5)
+        .RightMargin = Application.InchesToPoints(0.5)
+        .TopMargin = Application.InchesToPoints(0.75)
+        .BottomMargin = Application.InchesToPoints(0.75)
+        .HeaderMargin = Application.InchesToPoints(0.3)
+        .FooterMargin = Application.InchesToPoints(0.3)
+        .Orientation = xlLandscape
+        .Zoom = False
+        .FitToPagesWide = 1
+        .FitToPagesTall = False
+    End With
+    
+    With wsDest
+        .PageSetup.PrintArea = ""
+        .PageSetup.PrintArea = .usedRange.Address(True, True)
+        .Activate
+    End With
+    
+    ActiveWindow.View = xlPageBreakPreview
     
     MsgBox "Знайдено " & destRow - startRow & " боржників.", vbInformation
     
     Application.ScreenUpdating = True
+    Application.Calculation = xlCalculationAutomatic
 End Sub
+
 

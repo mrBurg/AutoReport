@@ -56,9 +56,9 @@ Sub AddDateCheckboxes()
         tempSheet.name = tempWsName
     End If
     
-    tempSheet.Range("A1").formula = "=LEN(TRIM(" & monthRange.Range("A1").Address(False, False) & ")) > 0"
-    
-    'ws.Activate
+    tempSheet.Range("A1").formula = "=LEN(TRIM(" & _
+        monthRange.Range("A1").Address(False, False) & _
+        ")) > 0"
     
     With monthRange
         .FormatConditions.Delete
@@ -72,7 +72,7 @@ Sub AddDateCheckboxes()
     tempSheet.Delete
     Application.DisplayAlerts = True
     
-    
     ws.Protect AllowFiltering:=True
+    
     Application.ScreenUpdating = True
 End Sub
