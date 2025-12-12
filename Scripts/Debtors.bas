@@ -10,7 +10,6 @@ Sub MoveRowsWithNotAllTrue()
     Dim j As Long
     Dim c As Long
     Dim r As Long
-    Dim k As Range
     Dim allTrue As Boolean
     Dim sheetName As String
     Dim destName As String
@@ -18,13 +17,11 @@ Sub MoveRowsWithNotAllTrue()
     Dim destRow As Long
     Dim legendStart As Long
     Dim headerRange As Range
-    Dim allCells As Range
     Dim rowRange As Range
     Dim rowDestRange As Range
     Dim cb As CheckBox
     Dim cbName As String
     Dim colLetter As String
-    Dim nf() As Variant
 
     Application.CutCopyMode = False
     Application.ReferenceStyle = xlA1
@@ -54,14 +51,11 @@ Sub MoveRowsWithNotAllTrue()
     
     wsDest.Cells.Clear
     
-    Set headerRange = wsSrc.Range(getCell(1, "A").Address & _
-        ":" & _
-        getCell(3, "P").Address)
+    Set headerRange = wsSrc.Range("A1:P3")
     
     headerRange.Copy
-    
     wsDest.Range("A1").PasteSpecial xlPasteAll
-        
+    
     For c = 1 To headerRange.Columns.Count
         wsDest.Columns(c).columnWidth = wsSrc.Columns(c).columnWidth
     Next c
@@ -121,45 +115,36 @@ Sub MoveRowsWithNotAllTrue()
         If Not allTrue Then
             With rowRange
                 rowDestRange.Resize(1, lastCol + 1).Value = .Value
-                .Copy
-                rowDestRange.PasteSpecial xlPasteFormats
+                '.Copy
+                'rowDestRange.PasteSpecial xlPasteFormats
             End With
             
             With wsDest.Cells(destRow, getCol("A"))
-                .formula = "=ROW() - ROW(A" & startRow & ") + 1"
-                .Borders.LineStyle = xlContinuous
+                .Formula = "=ROW() - ROW(A" & startRow & ") + 1"
+                '.Borders.LineStyle = xlContinuous
             End With
             
             destRow = destRow + 1
         End If
-    
-    ReDim nf(1 To wsDest.usedRange.Rows.Count, 1 To wsDest.usedRange.Columns.Count)
-    For Each k In wsDest.usedRange
-        nf(k.Row, k.Column) = k.NumberFormat
-    Next k
-    
-    wsDest.Cells.FormatConditions.Delete
-    wsSrc.usedRange.Copy
-    wsDest.usedRange.PasteSpecial Paste:=xlPasteFormats
-    
-    For Each k In wsDest.usedRange
-        k.NumberFormat = nf(k.Row, k.Column)
-    Next k
-    
 SkipRow:
     Next i
     
+    lastRow = wsDest.Cells(wsSrc.Rows.Count, 1).End(xlUp).Row
+    
+    wsSrc.Range("A4:P" & lastRow).Copy
+    wsDest.Range("A4").PasteSpecial xlPasteFormats
+    
     legendStart = destRow + 1
-        
+    
     With wsDest
         .Cells(legendStart, "C").Value = "Здано"
         .Cells(legendStart, "B").Interior.Color = RGB(128, 128, 128)
-        ' .Cells(legendStart, "B").Font.Color = RGB(128, 128, 128)
+        '.Cells(legendStart, "B").Font.Color = RGB(128, 128, 128)
         
         .Cells(legendStart + 1, "C").Value = "Не здано"
-        ' .Cells(legendStart + 1, "B").Interior.Color = RGB(255, 255, 255)
-        ' .Cells(legendStart + 1, "B").Font.Color = RGB(255, 255, 255)
-        ' .Cells(legendStart + 1, "C").Font.Bold = True
+        .Cells(legendStart + 1, "B").Interior.Color = RGB(255, 255, 255)
+        '.Cells(legendStart + 1, "B").Font.Color = RGB(255, 255, 255)
+        '.Cells(legendStart + 1, "C").Font.Bold = True
         
         .Range(.Cells(legendStart, "B"), .Cells(legendStart + 1, "C")).Borders.LineStyle = xlContinuous
         .Columns("B:C").AutoFit
@@ -180,7 +165,7 @@ SkipRow:
     
     With wsDest
         .PageSetup.PrintArea = ""
-        .PageSetup.PrintArea = .usedRange.Address(True, True)
+        .PageSetup.PrintArea = .UsedRange.Address(True, True)
         .Activate
     End With
     
@@ -191,5 +176,4 @@ SkipRow:
     Application.ScreenUpdating = True
     Application.Calculation = xlCalculationAutomatic
 End Sub
-
 
