@@ -3,14 +3,10 @@ Option Explicit
 
 Sub AddDateCheckboxes()
     Dim r As Range
-    Dim monthRange As Range
     Dim cb As CheckBox
     Dim ws As Worksheet
     Dim cbName As String
-    Dim tempWsName As String
     Dim colWidth As Long
-    Dim tmp As Range
-    Dim tempSheet As Worksheet
     
     Application.ScreenUpdating = False
     
@@ -41,38 +37,14 @@ Sub AddDateCheckboxes()
             .Height = r.Height
         End With
     Next r
-    
-    Set monthRange = Selection
-    
-    tempWsName = "TempSheet"
-    
-    On Error Resume Next
-        Set tempSheet = ThisWorkbook.Sheets(tempWsName)
-    On Error GoTo 0
-    
-    If tempSheet Is Nothing Then
-        Set tempSheet = ThisWorkbook.Sheets.Add
         
-        tempSheet.name = tempWsName
-    End If
+    Selection.FormatConditions.Delete
+    Selection.FormatConditions.Add _
+        Type:=xlExpression, _
+        Formula1:="=LEN(Trim(" & Selection.Cells(1, 1).Address(False, False) & ")) > 0"
+    Selection.FormatConditions(1).Interior.Color = RGB(128, 128, 128)
     
-    tempSheet.Range("A1").formula = "=LEN(TRIM(" & _
-        monthRange.Range("A1").Address(False, False) & _
-        ")) > 0"
-    
-    With monthRange
-        .FormatConditions.Delete
-        .FormatConditions.Add _
-            Type:=xlExpression, _
-            Formula1:=tempSheet.Range("A1").formulaLocal
-        .FormatConditions(1).Interior.Color = RGB(128, 128, 128)
-    End With
-    
-    Application.DisplayAlerts = False
-    tempSheet.Delete
-    Application.DisplayAlerts = True
     
     ws.Protect AllowFiltering:=True
-    
     Application.ScreenUpdating = True
 End Sub

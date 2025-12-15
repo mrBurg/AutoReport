@@ -2,23 +2,16 @@ Attribute VB_Name = "Debtors"
 Option Explicit
 
 Sub MoveRowsWithNotAllTrue()
-    Dim wsSrc As Worksheet
-    Dim wsDest As Worksheet
-    Dim lastRow As Long
-    Dim lastCol As Long
-    Dim i As Long
-    Dim j As Long
-    Dim c As Long
-    Dim r As Long
+    Dim wsSrc As Worksheet, wsDest As Worksheet
+    Dim startRow As Long, lastRow As Long
+    Dim startCol As Long, lastCol As Long
+    Dim i As Long, j As Long, c As Long, r As Long
     Dim allTrue As Boolean
-    Dim sheetName As String
-    Dim destName As String
-    Dim startRow As Long
+    Dim sheetName As String, destName As String
     Dim destRow As Long
     Dim legendStart As Long
     Dim headerRange As Range
-    Dim rowRange As Range
-    Dim rowDestRange As Range
+    Dim rowRange As Range, rowDestRange As Range
     Dim cb As CheckBox
     Dim cbName As String
     Dim colLetter As String
@@ -64,11 +57,12 @@ Sub MoveRowsWithNotAllTrue()
         wsDest.Rows(r).RowHeight = wsSrc.Rows(r).RowHeight
     Next r
     
-    lastRow = wsSrc.Cells(wsSrc.Rows.Count, 1).End(xlUp).Row
+    startCol = 4
     lastCol = wsSrc.Cells(1, wsSrc.Columns.Count).End(xlToLeft).Column - 1
-    
     startRow = 4
-    destRow = 4
+    lastRow = wsSrc.Cells(wsSrc.Rows.Count, 1).End(xlUp).Row
+    
+    destRow = startRow
     
     For i = startRow To lastRow
         allTrue = True
@@ -86,7 +80,7 @@ Sub MoveRowsWithNotAllTrue()
             GoTo SkipRow
         End If
         
-        For j = startRow To lastCol
+        For j = startCol To lastCol
             colLetter = getColLetter(j)
             cbName = "CB_" & colLetter & i
             
@@ -176,4 +170,6 @@ SkipRow:
     Application.ScreenUpdating = True
     Application.Calculation = xlCalculationAutomatic
 End Sub
+
+
 

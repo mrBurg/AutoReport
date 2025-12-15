@@ -22,7 +22,7 @@ Sub ClearCheckboxes()
     
     ws.Unprotect
     
-    lastRow = ws.usedRange.Rows(ws.usedRange.Rows.Count).Row
+    lastRow = ws.UsedRange.Rows(ws.UsedRange.Rows.Count).Row
     'lastRow = ws.Cells(ws.Rows.Count, "D").End(xlUp).Row
     
     Set allCells = ws.Range("D4:O" & lastRow)
